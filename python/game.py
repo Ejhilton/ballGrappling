@@ -25,11 +25,14 @@ player = Player(window, playerInitPos, playerInitVel, playerSize, playerColor)
 
 running = True
 while running:
+    # input
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # input
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                running = False
 
     # update
     player.update()
