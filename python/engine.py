@@ -6,7 +6,6 @@ class Window:
         self.width = width
         self.height = height
         self.window = pygame.display.set_mode((width, height), fullscreen)
-        self.clock = pygame.time.Clock()
         pygame.display.set_caption(title)
 
     def swapBuffers(self):
@@ -21,13 +20,18 @@ class Player:
         self.window = window
         self.windowSurface = window.window
         self.pos = pos
+        self.lastPos = pos
         self.velocity = velocity
         self.radius = radius
+        self.playerSpeed = 10
         self.color = color
+        self.gravity = pygame.math.Vector2(0, 0.99)
 
     def update(self):
+        self.velocity += self.gravity
         self.pos += self.velocity
-        self.prevPos = self.pos
+        self.lastPos = self.pos
+
 
     def draw(self):
         pygame.draw.circle(self.windowSurface, self.color, (self.pos.x, self.pos.y), self.radius)

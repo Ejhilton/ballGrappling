@@ -1,3 +1,5 @@
+import pygame.math
+
 from engine import *
 
 pygame.init()
@@ -16,10 +18,10 @@ if useScreen:
 clock = pygame.time.Clock()
 
 # player info
-playerInitPos = pygame.math.Vector2(width/2, height/2)
+playerInitPos = pygame.math.Vector2(width/2, 0)
 playerInitVel = pygame.math.Vector2(0, 0)
 playerSize = 20
-playerColor = "Green"
+playerColor = (0,255,0)
 
 player = Player(window, playerInitPos, playerInitVel, playerSize, playerColor)
 
@@ -34,7 +36,42 @@ while running:
             if event.key == pygame.K_q:
                 running = False
 
+            if event.key == pygame.K_LEFT:
+                player.velocity += pygame.math.Vector2(-player.playerSpeed, 0)
+
+            elif event.key == pygame.K_RIGHT:
+                player.velocity += pygame.math.Vector2(player.playerSpeed, 0)
+
+            elif event.key == pygame.K_SPACE:
+                pause = True
+
+            elif event.key == pygame.K_UP:
+                pass
+
+            elif event.key == pygame.K_DOWN:
+                pass
+
+
+        # if keyup
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT:
+                player.velocity += pygame.math.Vector2(player.playerSpeed, 0)
+
+            elif event.key == pygame.K_RIGHT:
+                player.velocity += pygame.math.Vector2(-player.playerSpeed, 0)
+
+            elif event.key == pygame.K_SPACE:
+                pause = False
+
     # update
+
+    if player.pos.x <= 0  or player.pos.x >= width:
+        player.velocity.x = -player.velocity.x
+
+    if player.pos.y <= 0 or player.pos.y >= height:
+        player.velocity.y = -player.velocity.y
+
+
     player.update()
 
     # render
@@ -47,6 +84,6 @@ while running:
     window.swapBuffers()
 
     # frame rate
-    window.clock.tick(60)
+    clock.tick(60)
 
 pygame.quit()
