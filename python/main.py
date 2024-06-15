@@ -15,6 +15,14 @@ if useScreen:
 
 clock = pygame.time.Clock()
 
+# player info
+playerInitPos = pygame.math.Vector2(width/2, height/2)
+playerInitVel = pygame.math.Vector2(0, 0)
+playerSize = 20
+playerColor = "Green"
+
+player = Player(window, playerInitPos, playerInitVel, playerSize, playerColor)
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -24,14 +32,18 @@ while running:
     # input
 
     # update
+    player.update()
 
     # render
-
-
     window.clear()
+
+    # draw below here
+
+    player.draw()
+
     window.swapBuffers()
 
     # frame rate
-    clock.tick(60)
+    window.clock.tick(60)
 
 pygame.quit()
