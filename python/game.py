@@ -15,10 +15,8 @@ if useScreen:
     width = screenWidth
     height = screenHeight
 
-clock = pygame.time.Clock()
-
 # player info
-playerInitPos = pygame.math.Vector2(width/2, 0)
+playerInitPos = pygame.math.Vector2(width/2, 50)
 playerInitVel = pygame.math.Vector2(0, 0)
 playerSize = 20
 playerColor = (0,255,0)
@@ -37,42 +35,48 @@ while running:
                 running = False
 
             if event.key == pygame.K_LEFT:
-                player.velocity += pygame.math.Vector2(-player.playerSpeed, 0)
+                player.turnLeft = True
 
             elif event.key == pygame.K_RIGHT:
-                player.velocity += pygame.math.Vector2(player.playerSpeed, 0)
+                player.turnRight = True
 
             elif event.key == pygame.K_SPACE:
                 pause = True
 
             elif event.key == pygame.K_UP:
-                pass
+                player.moveForward = True
 
             elif event.key == pygame.K_DOWN:
-                pass
-
+                player.moveBackward = True
 
         # if keyup
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
-                player.velocity += pygame.math.Vector2(player.playerSpeed, 0)
+                player.turnLeft = False
 
             elif event.key == pygame.K_RIGHT:
-                player.velocity += pygame.math.Vector2(-player.playerSpeed, 0)
+                player.turnRight = False
 
             elif event.key == pygame.K_SPACE:
                 pause = False
 
-    # update
+            elif event.key == pygame.K_UP:
+                player.moveForward = False
 
-    if player.pos.x <= 0  or player.pos.x >= width:
+            elif event.key == pygame.K_DOWN:
+                player.moveBackward = False
+
+    # update
+    dt = window.getDt()
+
+    if player.pos.x - player.radius <= 0  or player.pos.x + player.radius >= width:
         player.velocity.x = -player.velocity.x
 
-    if player.pos.y <= 0 or player.pos.y >= height:
+    if player.pos.y - player.radius <= 0 or player.pos.y + player.radius >= height:
         player.velocity.y = -player.velocity.y
 
 
-    player.update()
+    player.update(dt)
 
     # render
     window.clear()
@@ -80,10 +84,6 @@ while running:
     # draw below here
 
     player.draw()
-
     window.swapBuffers()
-
-    # frame rate
-    clock.tick(60)
 
 pygame.quit()
