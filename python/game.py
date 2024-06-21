@@ -19,7 +19,7 @@ if useScreen:
 playerInitPos = pygame.math.Vector2(width/2, 50)
 playerInitVel = pygame.math.Vector2(0, 0)
 playerSize = 20
-playerColor = (0,255,0)
+playerColor = (0, 255, 0)
 
 player = Player(window, playerInitPos, playerInitVel, playerSize, playerColor)
 
@@ -41,7 +41,7 @@ while running:
                 player.turnRight = True
 
             elif event.key == pygame.K_SPACE:
-                pause = True
+                player.turnSharp = True
 
             elif event.key == pygame.K_UP:
                 player.moveForward = True
@@ -58,7 +58,7 @@ while running:
                 player.turnRight = False
 
             elif event.key == pygame.K_SPACE:
-                pause = False
+                player.turnSharp = False
 
             elif event.key == pygame.K_UP:
                 player.moveForward = False
@@ -69,11 +69,18 @@ while running:
     # update
     dt = window.getDt()
 
-    if player.pos.x - player.radius <= 0  or player.pos.x + player.radius >= width:
-        player.velocity.x = -player.velocity.x
+    offscreen = player.isOffscreen(window)
+    if offscreen:
+        if offscreen == "Left":
+            player.bounce(pygame.math.Vector2(-1, 0))
+        elif offscreen == "Right":
+            player.bounce(pygame.math.Vector2(1, 0))
+        elif offscreen == "top":
+            player.bounce(pygame.math.Vector2(0, 1))
+        else:
+            player.bounce(pygame.math.Vector2(0, -1))
 
-    if player.pos.y - player.radius <= 0 or player.pos.y + player.radius >= height:
-        player.velocity.y = -player.velocity.y
+
 
 
     player.update(dt)

@@ -2,6 +2,8 @@ import pygame
 import time
 import math
 
+
+
 class Window:
     def __init__(self, width, height, fullscreen, title):
         self.width = width
@@ -9,6 +11,7 @@ class Window:
         self.window = pygame.display.set_mode((width, height), fullscreen)
         pygame.display.set_caption(title)
         self.previousTime = time.time()
+        self.rect = pygame.Rect(0, 0, width, height)
 
     def swapBuffers(self):
         pygame.display.flip()
@@ -38,35 +41,76 @@ class Player:
         self.turnRight = False
         self.moveForward = False
         self.moveBackward = False
-        self.turnSpeed = 1
+        self.turnSpeed = 0.35
+        self.turnSharp = False
         self.maxSpeed = 1000
         # self.gravity = pygame.math.Vector2(0, 0.98)
 
+        # image info
+        self.image = pygame.image.load("../images/simple-travel-car-top_view.png")
+        self.image = pygame.transform.scale(self.image, (180, 100))
+        self.rotateImage = self.image
+
     def update(self, dt):
+        self.rotateImage = self.image
+
         # self.velocity += self.gravity
         if self.turnRight:
-            self.angle += self.turnSpeed
+            if self.turnSharp:
+                self.angle += self.turnSpeed * 1.5
+            else:
+                self.angle += self.turnSpeed
 
         if self.turnLeft:
-            self.angle += -self.turnSpeed
+            if self.turnSharp:
+                self.angle += -self.turnSpeed * 1.5
+            else:
+                self.angle += -self.turnSpeed
 
         if self.moveForward and self.velocity.length() < self.maxSpeed:
-            self.velocity += self.calculate_normalized_direction(self.angle) * 5
+            self.velocity += self.calculate_normalized_direction(self.angle) * 3
 
         if self.moveBackward and self.velocity.length() < self.maxSpeed:
-            self.velocity += -(self.calculate_normalized_direction(self.angle) * 5)
+            self.velocity += -(self.calculate_normalized_direction(self.angle) * 2)
 
-        self.velocity *= 0.995
+        self.velocity *= 0.997
         self.pos += self.velocity * dt
         self.lastPos = self.pos
 
-    def calculate_endpoint(self, start_x, start_y, angle_degrees, distance):
+        self.rotateImage = pygame.transform.rotate(self.rotateImage, -self.angle)
+
+    def isOffscreen(self, window):
+        if self.pos.x < 0:
+            self.pos.x = 0
+            return "left"
+        elif self.pos.x > window.width:
+            self.pos.x = window.width
+            return "right"
+        elif self.pos.y < 0:
+            self.pos.y = 0
+            return "top"
+        elif self.pos.y > window.height:
+            self.pos.y = window.height
+            return "bottom"
+        else:
+            return None
+
+
+    def bounce(self, normal):
+        dotProduct = self.velocity.dot(normal)
+        print(2 * dotProduct * normal)
+        self.velocity -= 2 * dotProduct * normal
+
+
+    @staticmethod
+    def calculate_endpoint(start_x, start_y, angle_degrees, distance):
         angle_radians = math.radians(angle_degrees)
         end_x = start_x + distance * math.cos(angle_radians)
         end_y = start_y + distance * math.sin(angle_radians)
-        return (end_x, end_y)
+        return end_x, end_y
 
-    def calculate_normalized_direction(self,angle_degrees):
+    @staticmethod
+    def calculate_normalized_direction(angle_degrees):
         # Convert angle to radians
         angle_radians = math.radians(angle_degrees)
 
@@ -87,7 +131,10 @@ class Player:
 
 
     def draw(self):
+        # rotate image in the center of it
+        player_rectangle = self.rotateImage.get_rect(center=(self.pos.x,self.pos.y))
         pygame.draw.circle(self.windowSurface, self.color, (self.pos.x, self.pos.y), self.radius)
         player_centre = (self.pos.x, self.pos.y)
         player_outerPoint = self.calculate_endpoint(self.pos.x, self.pos.y, self.angle, 50)
         pygame.draw.line(self.windowSurface, "Red", player_centre, player_outerPoint, 10)
+        self.windowSurface.blit(self.rotateImage, player_rectangle.topleft)
